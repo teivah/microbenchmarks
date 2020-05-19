@@ -11,16 +11,16 @@ const CacheLinePadSize = 64
 type CacheLinePad struct{ _ [CacheLinePadSize]byte }
 
 type A struct {
-	foo int
+	n int
 }
 
-type APadded struct {
-	foo int
-	_   CacheLinePad
+type PaddedA struct {
+	n int
+	_ CacheLinePad
 }
 
 type B struct {
-	foo int
+	n int
 }
 
 // Sink makes sure results are not optimized away by the compiler
@@ -38,13 +38,13 @@ func BenchmarkFalseSharing(b *testing.B) {
 		wg.Add(2)
 		go func() {
 			for j := 0; j < M; j++ {
-				structA.foo += j
+				structA.n += j
 			}
 			wg.Done()
 		}()
 		go func() {
 			for j := 0; j < M; j++ {
-				structB.foo += j
+				structB.n += j
 			}
 			wg.Done()
 		}()
@@ -54,7 +54,7 @@ func BenchmarkFalseSharing(b *testing.B) {
 }
 
 func BenchmarkPadding(b *testing.B) {
-	structA := APadded{}
+	structA := PaddedA{}
 	structB := B{}
 	wg := sync.WaitGroup{}
 
@@ -63,13 +63,13 @@ func BenchmarkPadding(b *testing.B) {
 		wg.Add(2)
 		go func() {
 			for j := 0; j < M; j++ {
-				structA.foo += j
+				structA.n += j
 			}
 			wg.Done()
 		}()
 		go func() {
 			for j := 0; j < M; j++ {
-				structB.foo += j
+				structB.n += j
 			}
 			wg.Done()
 		}()
